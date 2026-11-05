@@ -1,0 +1,21 @@
+{
+  "upstream_commit": "55198f6e49e242d293999514e3e44ccd9b0a600a",
+  "source_files": [
+    {
+      "path": "src/app/features/right-panel/right-panel.component.ts",
+      "sha256": "0cb31a23b553b6d4dd1300dc723132d9c6753e38fa408dc400b8c20390553812"
+    },
+    {
+      "path": "src/app/features/right-panel/right-panel-content.component.ts",
+      "sha256": "f64e10ace037d5f13f72af7c79b67b078bb0f8c3ec1dd54314d932d2799d122a"
+    },
+    {
+      "path": "src/app/features/tasks/task-detail-panel/task-detail-panel.component.ts",
+      "sha256": "168fe349f9d25080a43c988b1803b153531821869d8aaa4cfdf8844077bce00d"
+    },
+    {
+      "path": "docs/wiki/4.09-Task-Attributes.md",
+      "sha256": "eb353e07d3da7698d3625bd6f3a74d1ed020ed405450804410746a59d06fef86"
+    }
+  ]
+}

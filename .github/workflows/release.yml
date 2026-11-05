@@ -1,0 +1,61 @@
+name: Test and package plugin
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Check formatting and JavaScript
+        run: |
+          deno fmt --check src/ tests/lifecycle.mjs
+          deno check src/plugin.js
+      - name: Test packaging
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Build plugin ZIP
+        run: |
+          python3 build.py
+          python3 -m zipfile -t dist/task-details-popup.zip
+          python3 -c 'import zipfile; z=zipfile.ZipFile("dist/task-details-popup.zip"); assert set(z.namelist()) == {"manifest.json", "plugin.js"}'
+      - name: Check tag matches plugin version
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 -c 'import json, os, zipfile; z=zipfile.ZipFile("dist/task-details-popup.zip"); assert "v" + json.loads(z.read("manifest.json"))["version"] == os.environ["RELEASE_TAG"]'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: task-details-popup-plugin
+          path: dist/task-details-popup.zip
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: task-details-popup-plugin
+          path: dist
+      - name: Publish downloadable ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: gh release create "$RELEASE_TAG" dist/task-details-popup.zip --verify-tag --generate-notes --title "Task Details Popup $RELEASE_TAG" --draft=false --prerelease=false --latest

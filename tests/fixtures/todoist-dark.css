@@ -1,0 +1,342 @@
+/*
+ * Todoist Dark for Super Productivity — v0.1.0 — MIT
+ * Target: Super Productivity 19.2.0. Install this file via Settings > General >
+ * Theme > Install theme, then select Dark appearance. No external assets.
+ * Independent, unofficial theme; not affiliated with Doist.
+ */
+
+body.isDarkTheme {
+  /* Public Super Productivity theme contract. */
+  --surface-0: #191919;
+  --surface-1: #1f1f1f;
+  --surface-2: #282828;
+  --surface-3: #333333;
+  --surface-4: #3d3d3d;
+  --ink: #eeeeee;
+  --ink-strong: #ffffff;
+  --ink-muted: #b3b3b3;
+  --ink-on-channel: 255, 255, 255;
+  --separator: #363636;
+  --divider: #3d3d3d;
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  /* Local design tokens; adjust these to tune the Todoist feel. */
+  --td-sidebar: #262626;
+  --td-hover: #2b2b2b;
+  --td-selected: #472525;
+  --td-accent: #e26a60;
+  --td-accent-strong: #f07f75;
+  --td-button: #c93c39;
+  --td-button-hover: #b53633;
+  --td-radius: 6px;
+  --td-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", system-ui,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+
+  --brand: var(--td-accent);
+  --focus-ring: var(--td-accent-strong);
+  --focus-ring-color: var(--focus-ring);
+  --bg: var(--surface-1);
+  --bg-darker: var(--surface-0);
+  --bg-lighter: var(--surface-3);
+  --bg-lightest: var(--surface-4);
+  --bg-slightly-lighter: var(--surface-2);
+  --bg-super-light: var(--surface-4);
+  --bg-overlay: rgba(0, 0, 0, 0.8);
+  --c-bg-overlay: var(--bg-overlay);
+  --system-surface: var(--surface-1);
+  --card-bg: var(--surface-2);
+  --text-color: var(--ink);
+  --text-color-less-intense: #cccccc;
+  --text-color-more-intense: var(--ink-strong);
+  --text-color-most-intense: var(--ink-strong);
+  --text-color-muted: var(--ink-muted);
+  --separator-color: var(--separator);
+  --divider-color: var(--divider);
+  --extra-border-color: var(--separator);
+
+  --sidenav-bg: var(--td-sidebar);
+  --sidenav-bg-mobile: var(--td-sidebar);
+  --sidenav-text: #cccccc;
+  --sidenav-text-hover: var(--ink-strong);
+  --sidenav-text-secondary: var(--ink-muted);
+  --sidenav-hover-bg: #303030;
+  --sidenav-item-active-bg: var(--td-selected);
+  --sidenav-active-text: var(--td-accent-strong);
+  --right-panel-bg: var(--td-sidebar);
+  --right-panel-bg-mobile: var(--td-sidebar);
+  --bottom-panel-bg: var(--surface-2);
+  --bottom-nav-bg: var(--td-sidebar);
+  --banner-bg: var(--surface-2);
+
+  --font-primary-stack: var(--td-font);
+  --font-size-md: 14px;
+  --font-weight-semibold: 600;
+  --card-border-radius: var(--td-radius);
+  /* SP's task wrapper subtracts 40px: an 800px desktop reading column.
+   * This is a maximum only; board/plugin widths and sidebar resizing are intact. */
+  --component-max-width: 840px;
+  --input-border-radius: var(--td-radius);
+  --state-hover-alpha: 0.04;
+  --state-focus-alpha: 0.08;
+  --state-pressed-alpha: 0.12;
+  --state-selected-alpha: 0.08;
+  --state-disabled-alpha: 0.4;
+
+  /* Flat, separated rows rather than raised Material cards. State backgrounds
+   * remain distinct: details open / running timer / multi-selection. */
+  --task-c-bg: transparent;
+  --task-c-bg-done: transparent;
+  --sub-task-c-bg: transparent;
+  --sub-task-c-bg-done: transparent;
+  --sub-task-c-bg-in-selected: transparent;
+  --sub-task-border-color: var(--separator);
+  --task-c-selected-bg: #303030;
+  --selected-task-bg-color: #303030;
+  --task-c-current-bg: #352a29;
+  --task-c-multi-selected-bg: var(--td-selected);
+  --task-c-drag-drop-bg: #3a302f;
+  --task-border: none;
+  --task-separator: 1px solid var(--separator);
+  --task-row-edge: var(--task-separator);
+  --task-list-row-gap: 0px;
+  --task-border-radius: 4px;
+  --task-first-line-min-height: 40px;
+  --task-inner-padding-top-bottom: 6px;
+  --task-is-done-dim-opacity: 0.65;
+  --task-shadow: none;
+  --task-shadow-sub-task: none;
+  --task-current-shadow: none;
+  --task-selected-shadow: none;
+  --done-toggle-glyph-size: 24px;
+
+  /* Text/focus use a bright coral; filled controls use a darker red so their
+   * white labels retain AA contrast. Individual tag/project icon colours stay. */
+  --c-primary: var(--td-accent);
+  --c-accent: var(--td-accent);
+  --c-warn: #ff8e84;
+  --c-contrast: #ffffff;
+  --palette-primary-100: #472525;
+  --palette-primary-200: #8d3935;
+  --palette-primary-300: #f6a69e;
+  --palette-primary-400: var(--td-accent-strong);
+  --palette-primary-500: var(--td-button);
+  --palette-primary-600: var(--td-button-hover);
+  --palette-primary-700: #a42d2b;
+  --palette-primary-800: #862624;
+  --palette-primary-900: #68201e;
+  --palette-primary-contrast-100: #ffffff;
+  --palette-primary-contrast-200: #ffffff;
+  --palette-primary-contrast-300: #1f1f1f;
+  --palette-primary-contrast-400: #1f1f1f;
+  --palette-primary-contrast-500: #ffffff;
+  --palette-primary-contrast-600: #ffffff;
+  --palette-primary-contrast-700: #ffffff;
+  --palette-primary-contrast-800: #ffffff;
+  --palette-primary-contrast-900: #ffffff;
+  --palette-accent-100: var(--palette-primary-100);
+  --palette-accent-200: var(--palette-primary-200);
+  --palette-accent-300: var(--palette-primary-300);
+  --palette-accent-400: var(--palette-primary-400);
+  --palette-accent-500: var(--palette-primary-500);
+  --palette-accent-600: var(--palette-primary-600);
+  --palette-accent-700: var(--palette-primary-700);
+  --palette-accent-800: var(--palette-primary-800);
+  --palette-accent-900: var(--palette-primary-900);
+  --palette-accent-contrast-100: #ffffff;
+  --palette-accent-contrast-200: #ffffff;
+  --palette-accent-contrast-300: #1f1f1f;
+  --palette-accent-contrast-400: #1f1f1f;
+  --palette-accent-contrast-500: #ffffff;
+  --palette-accent-contrast-600: #ffffff;
+  --palette-accent-contrast-700: #ffffff;
+  --palette-accent-contrast-800: #ffffff;
+  --palette-accent-contrast-900: #ffffff;
+
+  --input-bg: #242424;
+  --input-bg-hover: #2d2d2d;
+  --input-border-color: #555555;
+  --input-border-color-focus: var(--focus-ring);
+  --input-border-color-invalid: var(--c-warn);
+  --select-hover-bg: var(--td-hover);
+  --options-border-color: var(--separator);
+  --chip-outline-color: #555555;
+  --link-color: var(--td-accent-strong);
+  --button-primary-label: var(--td-accent-strong);
+  --button-accent-label: var(--td-accent-strong);
+  --button-warn-label: var(--c-warn);
+  --task-detail-bg: var(--surface-2);
+  --task-detail-bg-hover: var(--surface-3);
+  --task-detail-value-color: var(--ink-muted);
+  --task-detail-shadow: none;
+  --standard-note-bg: var(--surface-2);
+  --standard-note-bg-hovered: var(--surface-3);
+  --standard-note-fg: var(--ink);
+  --attachment-bg: var(--surface-2);
+  --attachment-border: var(--separator);
+  --attachment-control-bg: var(--surface-3);
+  --attachment-control-border: var(--separator);
+  --attachment-control-hover-bg: var(--surface-4);
+  --schedule-event-bg: var(--surface-2);
+  --schedule-event-bg-in-side-panel: var(--surface-3);
+  --bg-drag-col: var(--surface-0);
+  --grid-color: var(--separator);
+  --progress-bg: #454545;
+  --scrollbar-thumb: #555555;
+  --scrollbar-thumb-hover: #777777;
+  --scrollbar-track: transparent;
+  --close-btn-bg: var(--surface-3);
+  --close-btn-border: var(--separator);
+  --overlay-bg: var(--scrim);
+  --c-backdrop: var(--scrim);
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --banner-shadow: none;
+  --bottom-nav-shadow: none;
+
+  /* Material components and overlays do not all read the app's aliases. */
+  --mat-app-background-color: var(--bg);
+  --mat-app-text-color: var(--ink);
+  --mat-menu-container-color: var(--surface-2);
+  --mat-menu-item-label-text-color: var(--ink);
+  --mat-menu-item-icon-color: var(--ink-muted);
+  --mat-dialog-container-color: var(--surface-2);
+  --mdc-dialog-container-color: var(--surface-2);
+  --mdc-dialog-supporting-text-color: var(--ink);
+  --mdc-dialog-subhead-color: var(--ink-strong);
+  --mat-select-panel-background-color: var(--surface-2);
+  --mat-select-enabled-trigger-text-color: var(--ink);
+  --mat-autocomplete-background-color: var(--surface-2);
+  --mat-option-label-text-color: var(--ink);
+  --mat-option-selected-state-label-text-color: var(--td-accent-strong);
+  --mat-option-selected-state-layer-color: var(--td-selected);
+  --mat-option-hover-state-layer-color: var(--td-hover);
+  --mat-expansion-container-background-color: var(--surface-2);
+  --mat-expansion-container-text-color: var(--ink);
+  --mat-tooltip-container-color: var(--surface-4);
+  --mat-tooltip-supporting-text-color: var(--ink-strong);
+  --mdc-filled-text-field-container-color: var(--input-bg);
+  --mdc-filled-text-field-input-text-color: var(--ink);
+  --mdc-filled-text-field-label-text-color: var(--ink-muted);
+  --mdc-outlined-text-field-input-text-color: var(--ink);
+  --mdc-outlined-text-field-label-text-color: var(--ink-muted);
+  --mdc-outlined-text-field-outline-color: var(--input-border-color);
+  --mdc-outlined-text-field-focus-outline-color: var(--focus-ring);
+  --mat-form-field-container-text-font: var(--td-font);
+  --mat-menu-item-label-text-font: var(--td-font);
+  --mat-dialog-supporting-text-font: var(--td-font);
+
+  color-scheme: dark;
+  background-color: var(--bg);
+  color: var(--text-color);
+  font-family: var(--font-primary-stack);
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Concrete surfaces prevent the app's project-colour wash bleeding through.
+ * Do not change positioning or apply containment/filtering to magic-side-nav:
+ * its mobile drawer must remain viewport-relative. */
+body.isDarkTheme .main-content,
+body.isDarkTheme .header-wrapper {
+  background-color: var(--bg);
+}
+
+body.isDarkTheme .nav-sidenav {
+  background: var(--td-sidebar) !important;
+  border-color: var(--separator);
+}
+
+body.isDarkTheme magic-side-nav .nav-link {
+  font-family: var(--td-font);
+  font-size: 14px;
+  border-radius: var(--td-radius);
+}
+
+body.isDarkTheme .nav-sidenav:not(.compactMode) .nav-link {
+  padding-block: 6px;
+}
+
+body.isDarkTheme task .task-title {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* No universal font override: Material's ligature icons keep their font. */
+body.isDarkTheme :is(input, textarea, select, button, .mat-mdc-menu-item) {
+  font-family: var(--td-font);
+}
+
+/* The direct-child chain targets only the hovered task's own surface, not its
+ * subtasks. The exclusions preserve the host's selection and timer signals. */
+@media (hover: hover) {
+  body.isDarkTheme
+    task:not(.isSelected):not(.isCurrent):not(.isMultiSelected):hover:not(:has(task:hover))
+    > swipe-block > .inner-wrapper > .inner-wrapper > .box {
+    background-color: var(--td-hover);
+  }
+}
+
+/* Round the existing SVG rectangle rather than replacing the actual control.
+ * Hit areas, labels, checked state, timer triangle and check animation survive. */
+body.isDarkTheme done-toggle .done-toggle-svg .done-shape {
+  rx: 10px;
+  ry: 10px;
+  stroke-width: 1.4px;
+  opacity: 0.75;
+}
+
+body.isDarkTheme done-toggle.is-done .done-toggle-svg .done-shape {
+  fill: var(--ink-muted);
+  stroke: var(--ink-muted);
+  opacity: 1;
+}
+
+body.isDarkTheme done-toggle.is-done .done-toggle-svg .done-check {
+  stroke: var(--surface-1);
+  opacity: 1;
+}
+
+/* The app owns task-row focus on its .box; leave that rule intact. Other
+ * controls get a high-contrast ring without changing mouse-only focus. */
+body.isDarkTheme :is(button, a, input, textarea, select, [tabindex]):not(task):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+body.isDarkTheme :is(.mat-mdc-dialog-surface, .mat-mdc-menu-panel,
+  .mat-mdc-select-panel, .mat-mdc-autocomplete-panel) {
+  background: var(--surface-2) !important;
+  color: var(--ink);
+  border: 1px solid var(--separator);
+  border-radius: 8px;
+}
+
+body.isDarkTheme .mat-mdc-unelevated-button.mat-primary,
+body.isDarkTheme .mat-mdc-raised-button.mat-primary,
+body.isDarkTheme .mat-mdc-unelevated-button.mat-accent,
+body.isDarkTheme .mat-mdc-raised-button.mat-accent {
+  --mdc-filled-button-container-color: var(--td-button);
+  --mdc-filled-button-label-text-color: #ffffff;
+  --mdc-protected-button-container-color: var(--td-button);
+  --mdc-protected-button-label-text-color: #ffffff;
+  border-radius: var(--td-radius);
+}
+
+@media (max-width: 599px) {
+  body.isDarkTheme {
+    --task-first-line-min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.isDarkTheme {
+    --transition-duration-xs: 0ms;
+    --transition-duration-s: 0ms;
+    --transition-duration-m: 0ms;
+    --transition-duration-l: 0ms;
+    --transition-duration-enter: 0ms;
+    --transition-duration-leave: 0ms;
+    --page-transition-duration: 0ms;
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "version": "19.1.0",
+  "release_url": "https://github.com/super-productivity/super-productivity/releases/tag/v19.1.0",
+  "asset_url": "https://github.com/super-productivity/super-productivity/releases/download/v19.1.0/app-play-release.apk",
+  "asset_sha256": "127af90995763d88a502eae428af9dc395dcdf17d3f8f1be498f56dfa4aab9dc",
+  "web_asset_prefix": "assets/public/",
+  "verification_scope": "Unmodified released web assets and plugin loader in Chromium; not a native Android installation"
+}

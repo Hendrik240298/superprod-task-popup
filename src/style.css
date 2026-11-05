@@ -1,0 +1,136 @@
+/* Presentation-only overrides, scoped to this plugin; colours stay theme-owned. */
+right-panel > [data-task-popup-retiring] {
+  display: none !important;
+  position: fixed !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  pointer-events: none !important;
+}
+@media (min-width: 600px) {
+  /* A deferred native task editor may arrive a frame after its sidebar shell.
+     Keep that empty/task-only shell out of flow until the plugin mounts it.
+     Populated non-task panels immediately retain their normal sidebar layout. */
+  right-panel.isOpen:not([data-task-popup-host]) > .side:has(.edge-close-handle):has(right-panel-content):not(:has(notes, issue-panel, plugin-panel-container, schedule-day-panel)) {
+    position: fixed !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+  right-panel[data-task-popup-host] {
+    overflow: visible !important;
+  }
+  right-panel:not(.isOpen) > [data-task-popup-dialog] {
+    display: none !important;
+  }
+  right-panel > [data-task-popup-dialog] {
+    --task-popup-height: min(
+      760px,
+      90dvh,
+      calc(100dvh - max(env(titlebar-area-height, 0px), 5vh) - 16px)
+    );
+    position: fixed !important;
+    top: max(env(titlebar-area-height, 0px), 5vh) !important;
+    left: 50% !important;
+    right: auto !important;
+    width: min(800px, calc(100vw - 48px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    height: auto !important;
+    max-height: var(--task-popup-height) !important;
+    transform: translateX(-50%) !important;
+    transition: none !important;
+    animation: none !important;
+    border: 1px solid var(--separator-color) !important;
+    border-radius: 16px;
+    box-shadow: var(--whiteframe-shadow-16dp, 0 12px 48px #0005);
+    background: var(--bg, var(--bg-lighter)) !important;
+    color: var(--text-color);
+    z-index: calc(var(--z-backdrop, 222) + 1) !important;
+    pointer-events: auto !important;
+    overflow: hidden !important;
+  }
+  [data-task-popup-dialog] > .right-panel {
+    padding-top: 0 !important;
+    height: auto !important;
+  }
+  [data-task-popup-dialog] .side-inner {
+    min-width: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: calc(var(--task-popup-height) - 2px);
+    padding: 44px 12px 16px;
+    box-sizing: border-box;
+    scrollbar-gutter: stable both-edges;
+    overscroll-behavior: contain;
+  }
+  [data-task-popup-dialog] right-panel-content,
+  [data-task-popup-dialog] right-panel-content > task-detail-panel {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  /* Native title styling is deliberately underline-only. Match the other
+     cards with a complete frame; keep border width constant while editing. */
+  [data-task-popup-dialog] task-detail-panel > .wrapper > .task-title-wrapper {
+    border: 1px solid var(--divider-color, var(--separator-color)) !important;
+  }
+  [data-task-popup-dialog] task-detail-panel > .wrapper > .task-title-wrapper:focus-within {
+    border-color: var(--palette-primary-400, var(--c-primary)) !important;
+  }
+  /* The header owns the one visible frame. Keep the inline title's transparent
+     border slot (and native text metrics), but not its inset focus card. */
+  [data-task-popup-dialog] task-detail-panel > .wrapper > .task-title-wrapper > task-title {
+    border-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+  [data-task-popup-dialog] .task-title-wrapper > task-title textarea {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  /* Leave field borders, editor focus, spacing and order to the app/theme.
+     Only reserve the native hover button's slot: display:none -> block would
+     otherwise move the value and can change overflow while the pointer rests. */
+  [data-task-popup-dialog] task-detail-item > .input-item > .input-item__edit-btn {
+    display: block !important;
+    visibility: hidden;
+    flex-shrink: 0;
+  }
+  [data-task-popup-dialog] task-detail-item > .input-item:hover > .input-item__edit-btn,
+  [data-task-popup-dialog] task-detail-item > .input-item:focus-within > .input-item__edit-btn {
+    visibility: visible;
+  }
+  [data-task-popup-dialog] > .right-panel > .resize-handle,
+  [data-task-popup-dialog] > .right-panel > .edge-close-handle {
+    display: none !important;
+  }
+  [data-task-popup-close] {
+    position: absolute;
+    top: 4px;
+    inset-inline-end: 8px;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: calc(var(--z-right-panel, 44) + 1);
+  }
+  [data-task-popup-close]:hover {
+    background: var(--state-hover, color-mix(in srgb, currentColor 6%,
+      transparent));
+  }
+  [data-task-popup-close]:focus-visible {
+    outline: 2px solid var(--c-primary);
+    outline-offset: -4px;
+  }
+  [data-task-popup-backdrop] {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-backdrop, 222);
+    background: var(--task-popup-backdrop, #0008);
+    touch-action: none;
+  }
+}
