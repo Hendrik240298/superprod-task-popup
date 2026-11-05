@@ -1,7 +1,7 @@
 {
   "id": "task-details-popup",
   "name": "Task Details Popup",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Show the existing desktop task editor as a centred popup in List and Kanban. Mobile keeps its native bottom sheet. Uses version-sensitive app DOM styling; no app patch or theme required.",
   "manifestVersion": 1,
   "minSupVersion": "19.1.0",

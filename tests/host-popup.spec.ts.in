@@ -339,7 +339,10 @@ for (const appearance of ['light', 'dark', 'todoist'] as const) {
       .locator('task-detail-item')
       .filter({ hasText: 'Duration' })
       .first();
-    for (const item of [duration, notes]) {
+    const subtasks = popup
+      .locator('task-detail-item')
+      .filter({ has: page.locator('.add-btn-wrapper') });
+    for (const item of [subtasks, duration, notes]) {
       await page.keyboard.press('Tab');
       await item.focus();
       const comparison = await item.evaluate((el) => {
@@ -379,7 +382,17 @@ for (const appearance of ['light', 'dark', 'todoist'] as const) {
           sheet.disabled = false;
         }
       });
-      expect(comparison.actual).toEqual(comparison.native);
+      // Keep the native card focus frame, but not an additional outline on
+      // its focusable host (some themes add one to every [tabindex] element).
+      expect(comparison.actual[1]).toEqual(comparison.native[1]);
+      for (const property of Object.keys(comparison.actual[0])) {
+        if (property.startsWith('outline-')) continue;
+        expect(comparison.actual[0][property]).toBe(comparison.native[0][property]);
+      }
+      expect(comparison.actual[0]['outline-style']).toBe('none');
+      if (appearance === 'todoist') {
+        expect(comparison.native[0]['outline-style']).toBe('solid');
+      }
       // The app's complete focus border must survive, not just a bottom line.
       for (const edge of ['top', 'right', 'bottom', 'left']) {
         expect(parseFloat(comparison.actual[1][`border-${edge}-width`])).toBeGreaterThan(

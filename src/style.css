@@ -87,6 +87,12 @@ right-panel > [data-task-popup-retiring] {
     outline: none !important;
     box-shadow: none !important;
   }
+  /* Native task-detail-item highlights its nested card on keyboard focus.
+     A theme-wide [tabindex]:focus-visible rule can also outline the host,
+     drawing a second, square frame outside the rounded card. */
+  [data-task-popup-dialog] task-detail-item:focus-visible {
+    outline: none !important;
+  }
   /* Leave field borders, editor focus, spacing and order to the app/theme.
      Only reserve the native hover button's slot: display:none -> block would
      otherwise move the value and can change overflow while the pointer rests. */

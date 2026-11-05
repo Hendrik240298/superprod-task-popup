@@ -28,6 +28,7 @@ Turn off Task Details Popup to return to the normal sidebar. Disabling removes i
 - **v0.2.2:** the native title's intentional bottom-only underline is replaced, in desktop popups only, by a complete 1px frame matching the other cards. Its colour is subtle at rest and uses the theme's focus accent while editing; border widths stay constant. Other native field styling and the mobile sheet remain unchanged.
 - **v0.2.3:** the title has **one** visible frame: its native inline-edit border, elevation and extra inner focus outline are suppressed inside the popup, while native text metrics and saving stay intact. The popup now **fits its content** instead of reserving a fixed height below the creation date. Long content uses the inner scroller, capped at 760px, 90% of viewport height and available space below the window-controls band (whichever is smallest).
 - **v0.2.4:** matching scrollbar gutters on both sides centre the title and cards, whether or not the popup needs scrolling. Hover and scrollbar stability are retained.
+- **v0.2.5:** keyboard focus in task-detail rows uses the native rounded card frame alone. A broad theme focus rule can no longer draw a second square outline around Subtasks, Duration or Notes in the popup. Other controls keep their focus indicators; the normal sidebar and mobile sheet are unchanged.
 - Native hover-action buttons have reserved space, so revealing them does not push field values around. A stable scrollbar gutter prevents content-width jumps when content needs scrolling. These adjustments are desktop-popup-only; hidden hover buttons are excluded from the focus trap.
 - Opening and closing happen in place, without a sidebar slide or page-width jump. The native outgoing sidebar is hidden while Angular finishes its internal teardown; rapid reopening cannot revive that outgoing node. Native expansion animations inside the editor are retained.
 - Below 600px, the app's native bottom sheet remains unchanged. Navigation and project Notes/other non-task panels are not redesigned.
@@ -67,7 +68,7 @@ python3 build.py
 python3 -m zipfile -t dist/task-details-popup.zip
 ```
 
-Install `dist/task-details-popup.zip` as above. The [CI workflow](.github/workflows/release.yml) follows the companion plugins: pushes to `main` and pull requests run offline checks and build an artifact; a pushed version tag publishes a GitHub Release after those checks pass. Tags must match `src/manifest.json`, for example `v0.2.4`. CI does **not** run the optional installed-app browser suite below.
+Install `dist/task-details-popup.zip` as above. The [CI workflow](.github/workflows/release.yml) follows the companion plugins: pushes to `main` and pull requests run offline checks and build an artifact; a pushed version tag publishes a GitHub Release after those checks pass. Tags must match `src/manifest.json`, for example `v0.2.5`. CI does **not** run the optional installed-app browser suite below.
 
 The ZIP contains exactly **`manifest.json` and `plugin.js`** at its root. CSS is bundled into `plugin.js`. There are no runtime npm dependencies or external resources.
 
