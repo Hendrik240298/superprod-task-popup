@@ -29,6 +29,7 @@ Turn off Task Details Popup to return to the normal sidebar. Disabling removes i
 - **v0.2.3:** the title has **one** visible frame: its native inline-edit border, elevation and extra inner focus outline are suppressed inside the popup, while native text metrics and saving stay intact. The popup now **fits its content** instead of reserving a fixed height below the creation date. Long content uses the inner scroller, capped at 760px, 90% of viewport height and available space below the window-controls band (whichever is smallest).
 - **v0.2.4:** matching scrollbar gutters on both sides centre the title and cards, whether or not the popup needs scrolling. Hover and scrollbar stability are retained.
 - **v0.2.5:** keyboard focus in task-detail rows uses the native rounded card frame alone. A broad theme focus rule can no longer draw a second square outline around Subtasks, Duration or Notes in the popup. Other controls keep their focus indicators; the normal sidebar and mobile sheet are unchanged.
+- **v0.2.6:** the actual **Keyboard Ergonomics** view/project picker can open above task details. Its search, Tab and Escape stay with the picker; cancelling restores popup focus without closing the native editor. The editor is temporarily inert/non-modal while the picker is visible, while the rest of the background stays inert. Either enable order, duplicate execution, either disable order and mobile transitions restore the original state without clearing drafts. Arbitrary dialogs and hidden/empty picker shells do not bypass popup focus safety.
 - Native hover-action buttons have reserved space, so revealing them does not push field values around. A stable scrollbar gutter prevents content-width jumps when content needs scrolling. These adjustments are desktop-popup-only; hidden hover buttons are excluded from the focus trap.
 - Opening and closing happen in place, without a sidebar slide or page-width jump. The native outgoing sidebar is hidden while Angular finishes its internal teardown; rapid reopening cannot revive that outgoing node. Native expansion animations inside the editor are retained.
 - Below 600px, the app's native bottom sheet remains unchanged. Navigation and project Notes/other non-task panels are not redesigned.
@@ -61,21 +62,21 @@ Physical Android, native Electron window controls, other browser engines, every 
 Requires Python 3 for packaging and tests; Deno 2 for formatting/JavaScript checks. From the repository root:
 
 ```sh
-deno fmt --check src/ tests/lifecycle.mjs
+deno fmt --check src/ tests/*.mjs
 deno check src/plugin.js
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 build.py
 python3 -m zipfile -t dist/task-details-popup.zip
 ```
 
-Install `dist/task-details-popup.zip` as above. The [CI workflow](.github/workflows/release.yml) follows the companion plugins: pushes to `main` and pull requests run offline checks and build an artifact; a pushed version tag publishes a GitHub Release after those checks pass. Tags must match `src/manifest.json`, for example `v0.2.5`. CI does **not** run the optional installed-app browser suite below.
+Install `dist/task-details-popup.zip` as above. The [CI workflow](.github/workflows/release.yml) follows the companion plugins: pushes to `main` and pull requests run offline checks and build an artifact; a pushed version tag publishes a GitHub Release after those checks pass. Tags must match `src/manifest.json`, for example `v0.2.6`. CI does **not** run the optional installed-app browser suite below.
 
 The ZIP contains exactly **`manifest.json` and `plugin.js`** at its root. CSS is bundled into `plugin.js`. There are no runtime npm dependencies or external resources.
 
 Optional Deno formatting/syntax checks:
 
 ```sh
-npm exec --yes --package=deno -- deno fmt --check src/ tests/lifecycle.mjs
+npm exec --yes --package=deno -- deno fmt --check src/ tests/*.mjs
 node --check src/plugin.js
 ```
 
@@ -89,6 +90,23 @@ PLAYWRIGHT_MODULE="$PWD/dist/browser-tools/node_modules/playwright/index.mjs" \
 PLAYWRIGHT_BROWSERS_PATH="$PWD/dist/browser-tools/browsers" \
   node tests/lifecycle.mjs
 ```
+
+### Keyboard Ergonomics interaction contract
+
+Only a visible `#superprod-vim-motions-picker` containing a visible `.spvm-panel[role="dialog"]` is a higher navigation overlay. Its body-level root is excluded from background inerting even if it mounted first. The popup retains its native editor DOM, makes that editor temporarily inert, and restores its own modal state and focus when the picker disappears. Native CDK children retain their existing Escape dispatcher path and remain excluded from background inerting. No generic `role="dialog"` exemption or shared runtime dependency is used.
+
+The companion owns picker keystrokes and destination/Inbox navigation. Navigation must blur/save native editors, dispatch Enter to the existing `.edge-close-handle`, await native close acknowledgement, then change the hash. That native close control is intentionally hidden by popup CSS: connectivity and a visible containing panel, **not the close control's own client rects**, establish its availability. Never remove the editor to force navigation.
+
+The combined regression loads **both actual plugin sources** with a disposable native-panel/PluginAPI fixture. It verifies typing, Tab, Escape-to-popup, both mount/unload orders, reload, modal safety, narrow recognition, native/CDK Escape, drafts, mobile transitions and the companion's close-before-navigation contract. It is not an Angular persistence or installed-app test. It fails explicitly if no companion source is supplied; it does not substitute a fake picker.
+
+```sh
+KEYBOARD_PLUGIN_SOURCE="/path/to/keyboard-ergonomics/plugin.js" \
+PLAYWRIGHT_MODULE="/path/to/playwright/index.mjs" \
+PLAYWRIGHT_BROWSERS_PATH="/path/to/matching/browsers" \
+  node tests/keyboard-interop.mjs
+```
+
+Both browser scripts also accept `PLAYWRIGHT_EXECUTABLE_PATH` for an existing Chromium executable; no browser download or new runtime dependency is required. The browser fixture simulates native blur saving and leave teardown; verify actual draft persistence and routing separately on an unmodified app with disposable data.
 
 The installed-plugin checks use upstream's existing E2E harness, isolated disposable browser contexts, and the **actual ZIP upload/enable UI**. The `.spec.ts.in` file is a test template: the runner temporarily copies it into the upstream E2E directory so its fixture imports resolve, runs upstream's format/lint checks, and removes it in `finally`. It refuses the earlier modified panel sources using stored baseline hashes. **No runtime app source is changed.** Run one instance at a time per upstream checkout.
 

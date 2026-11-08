@@ -32,7 +32,7 @@ class BuildTests(unittest.TestCase):
 
     def test_manifest_and_sources_are_readable_and_consistent(self):
         manifest = json.loads((ROOT / "src/manifest.json").read_text())
-        self.assertEqual(manifest["version"], "0.2.5")
+        self.assertEqual(manifest["version"], "0.2.6")
         self.assertEqual(manifest["minSupVersion"], "19.1.0")
         self.assertEqual((ROOT / "src/plugin.js").read_text().count('/* INLINE_CSS */ ""'), 1)
         self.assertTrue((ROOT / "src/style.css").read_text().startswith("/*"))

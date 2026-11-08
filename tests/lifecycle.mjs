@@ -10,7 +10,10 @@ const source = (await readFile(new URL("src/plugin.js", root), "utf8")).replace(
   '/* INLINE_CSS */ ""',
   JSON.stringify(await readFile(new URL("src/style.css", root), "utf8")),
 );
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({
+  headless: true,
+  executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH,
+});
 try {
   const page = await browser.newPage({
     viewport: { width: 1280, height: 900 },

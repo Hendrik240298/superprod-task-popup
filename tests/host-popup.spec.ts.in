@@ -5,6 +5,13 @@ import { waitForPluginManagementInit } from '../../helpers/plugin-test.helpers';
 import { fillMarkdownEditor } from '../../utils/markdown-editor';
 import path from 'node:path';
 
+// Optional local browser override; CI keeps the lockfile's default browser.
+if (process.env.PLAYWRIGHT_EXECUTABLE_PATH) {
+  test.use({
+    launchOptions: { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH },
+  });
+}
+
 const installPopup = async (page: import('@playwright/test').Page): Promise<void> => {
   if (process.env.POPUP_BASELINE === '1') return;
   await installZip(page, process.env.POPUP_PLUGIN_ZIP!, 'Task Details Popup');
@@ -705,6 +712,103 @@ test('actual Kanban plugin opens the shared native popup and restores card focus
   await popup.getByRole('button', { name: 'Close task details', exact: true }).click();
   await expect(popup).toHaveCount(0);
   await expect(card).toBeFocused();
+});
+
+test('packaged Kanban menu hjkl and configured keyboard shortcuts work together', async ({
+  page,
+  workViewPage,
+}) => {
+  test.skip(!process.env.KEYBOARD_PLUGIN_ZIP, 'Supply the companion ZIP');
+  await installZip(page, process.env.KANBAN_PLUGIN_ZIP!, 'Project Kanban');
+  await installZip(page, process.env.KEYBOARD_PLUGIN_ZIP!, 'Keyboard Ergonomics');
+  await page.goto('/#/config?section=keyboard');
+  const binding = page.getByRole('textbox', {
+    name: 'Find view or project (superprod-vim-motions)',
+    exact: true,
+  });
+  await binding.focus();
+  await page.keyboard.press('Shift+P');
+  await expect(binding).toHaveValue('Shift+P');
+  await binding.press('Tab');
+  const inboxBinding = page.getByRole('textbox', {
+    name: 'Go to Inbox (superprod-vim-motions)',
+    exact: true,
+  });
+  await inboxBinding.focus();
+  await page.keyboard.press('Shift+I');
+  await expect(inboxBinding).toHaveValue('Shift+I');
+  await inboxBinding.press('Tab');
+  await page.goto('/#/project/INBOX_PROJECT/tasks');
+  await workViewPage.waitForTaskList();
+  await workViewPage.addTask('Packaged keyboard menu');
+  await page
+    .locator('plugin-work-context-header-btns button')
+    .filter({ has: page.locator('mat-icon', { hasText: 'view_kanban' }) })
+    .click();
+  const board = page.frameLocator('plugin-index iframe');
+  const card = board.locator('.card').filter({ hasText: 'Packaged keyboard menu' });
+  await card.focus();
+  await expect(card.locator('.schedule-indicator')).toHaveCount(0);
+  await page.keyboard.press('m');
+  const menu = board.locator('.card-menu');
+  await expect(menu.locator('button').first()).toBeFocused();
+  await page.keyboard.press('j');
+  await expect(menu.locator('button').nth(1)).toBeFocused();
+  await page.keyboard.press('k');
+  await expect(menu.locator('button').first()).toBeFocused();
+  await menu.getByRole('menuitem', { name: /Estimate/ }).focus();
+  await page.keyboard.press('l');
+  await expect(menu.locator('.card-menu-back')).toBeVisible();
+  await page.keyboard.press('h');
+  await expect(menu.locator('.card-menu-back')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(card).toBeFocused();
+  await page.keyboard.press('Shift+P');
+  const picker = page.locator('#spvm-input');
+  await expect(picker).toBeFocused();
+  await picker.fill('Inbox');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#superprod-vim-motions-picker')).toHaveCount(0);
+  await expect(card).toBeFocused();
+  await expect(board.locator('.quick-add-help')).toHaveCount(0);
+  await page.keyboard.press('Shift+T');
+  await expect(page).toHaveURL(/#\/tag\/TODAY\/tasks$/);
+  await expect(page.locator('plugin-index iframe')).toHaveCount(0);
+  await page.goto('/#/project/INBOX_PROJECT/tasks');
+  await expect(page.locator('plugin-index iframe')).toHaveCount(1);
+  await expect(card).toBeVisible();
+  await expect(card.locator('.schedule-indicator')).toHaveCount(0);
+});
+
+test('packaged Kanban preserves blur edits and completes quietly', async ({
+  page,
+  workViewPage,
+}) => {
+  await installZip(page, process.env.KANBAN_PLUGIN_ZIP!, 'Project Kanban');
+  await page.goto('/#/project/INBOX_PROJECT/tasks');
+  await workViewPage.waitForTaskList();
+  await workViewPage.addTask('Packaged Kanban edit');
+  await page
+    .locator('plugin-work-context-header-btns button')
+    .filter({ has: page.locator('mat-icon', { hasText: 'view_kanban' }) })
+    .click();
+  const board = page.frameLocator('plugin-index iframe');
+  const card = board.locator('.card').filter({ hasText: 'Packaged Kanban edit' });
+  await card.focus();
+  await card.press('e');
+  await card.locator('.card-title-input').fill('Packaged Kanban saved on blur');
+  await board.getByRole('button', { name: 'Configure lanes', exact: true }).focus();
+  const saved = board.locator('.card').filter({ hasText: 'Packaged Kanban saved on blur' });
+  await expect(saved.locator('.card-title')).toHaveText('Packaged Kanban saved on blur');
+  await page.reload();
+  await expect(saved).toBeVisible();
+  await saved.locator('.card-complete').click();
+  await expect(saved).toHaveCount(0);
+  await expect(board.getByRole('button', { name: 'Undo', exact: true })).toHaveCount(0);
+  await expect(board.locator('.completion-feedback')).toHaveCount(0);
+  await page.reload();
+  await expect(board.locator('.board')).toBeVisible();
+  await expect(saved).toHaveCount(0);
 });
 
 test('disabling removes all plugin UI and restores the original sidebar', async ({

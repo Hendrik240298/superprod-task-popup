@@ -40,7 +40,14 @@
   const visible = (el) =>
     el instanceof HTMLElement && el.getClientRects().length > 0 &&
     !["hidden", "collapse"].includes(getComputedStyle(el).visibility);
-  const overlayOpen = () =>
+  // Keyboard Ergonomics owns one known non-CDK navigation surface. Neither an
+  // arbitrary dialog nor an empty/hidden picker shell may suspend this modal.
+  const navigationOverlay = () => {
+    const root = document.getElementById("superprod-vim-motions-picker");
+    const panel = root?.querySelector('.spvm-panel[role="dialog"]');
+    return visible(root) && visible(panel) ? root : null;
+  };
+  const nativeOverlayOpen = () =>
     Array.from(document.querySelectorAll(
       ".cdk-overlay-pane",
     )).some((el) =>
@@ -49,6 +56,7 @@
         "mat-snack-bar-container,.mat-mdc-tooltip,mat-tooltip-component",
       )
     );
+  const overlayOpen = () => !!navigationOverlay() || nativeOverlayOpen();
   const focusables = () =>
     active
       ? Array.from(active.side.querySelectorAll(
@@ -76,10 +84,36 @@
     for (const [el, wasInert] of undoInert.splice(0)) el.inert = wasInert;
   }
 
+  function syncNavigationModal() {
+    if (!active) return;
+    if (navigationOverlay()) {
+      if (!active.navigation) {
+        active.navigation = { inert: active.side.inert };
+        active.side.inert = true;
+        active.side.setAttribute("aria-modal", "false");
+      }
+    } else if (active.navigation) {
+      active.side.inert = active.navigation.inert;
+      active.navigation = null;
+      active.side.setAttribute("aria-modal", "true");
+      // Removing the picker may attempt focus while its parent editor is still
+      // inert. Restore only after reactivating that editor, never by closing it.
+      if (
+        !active.side.contains(document.activeElement) && !nativeOverlayOpen()
+      ) {
+        const target = active.popupFocus;
+        (target?.isConnected && visible(target) ? target : active.close).focus({
+          preventScroll: true,
+        });
+      }
+    }
+  }
+
   function release(restoreFocus = false) {
     if (!active) return;
     const old = active;
     active = null;
+    if (old.navigation) old.side.inert = old.navigation.inert;
     if (restoreFocus) {
       // Angular retains this node during its width-to-zero leave animation.
       // Never restore sidebar presentation while that outgoing node is alive.
@@ -132,7 +166,17 @@
       "tabindex",
     ]
       .map((attr) => [attr, side.getAttribute(attr)]);
-    active = { host, side, nativeClose, backdrop, close, attributes, origin };
+    active = {
+      host,
+      side,
+      nativeClose,
+      backdrop,
+      close,
+      attributes,
+      origin,
+      popupFocus: close,
+      navigation: null,
+    };
     host.setAttribute("data-task-popup-host", "");
     side.setAttribute("data-task-popup-dialog", "");
     side.setAttribute("role", "dialog");
@@ -142,7 +186,8 @@
     host.insertBefore(backdrop, side);
     side.append(close);
     // Keep the native editor and its ancestor chain live, but make background
-    // siblings inert. CDK overlays outside app-root remain usable for child dialogs.
+    // siblings inert. CDK child overlays and the known Keyboard picker stay live,
+    // including when Keyboard mounted before this plugin was enabled.
     for (
       let node = side;
       node && node !== document.body;
@@ -151,13 +196,14 @@
       for (const sibling of node.parentElement?.children || []) {
         if (
           sibling === node || sibling === backdrop || sibling.matches(
-            ".cdk-overlay-container,style,script,link",
+            ".cdk-overlay-container,#superprod-vim-motions-picker,style,script,link",
           )
         ) continue;
         undoInert.push([sibling, sibling.inert]);
         sibling.inert = true;
       }
     }
+    syncNavigationModal();
     if (!overlayOpen()) close.focus({ preventScroll: true });
   }
 
@@ -184,6 +230,7 @@
       release(!mobile.matches && !host);
     }
     if (!active && eligible) mount(host, side, nativeClose);
+    syncNavigationModal();
   }
 
   function schedule() {
@@ -192,6 +239,9 @@
 
   function onKey(event) {
     if (!active) return;
+    syncNavigationModal();
+    // Its own handler owns typing, Tab and Escape (including focus restoration).
+    if (navigationOverlay()) return;
     if (overlayOpen()) {
       // Some native child dialogs leave focus on their parent trigger. Keep
       // Escape away from task-detail-item (which otherwise collapses the parent)
@@ -239,6 +289,15 @@
   }
 
   function onFocus(event) {
+    syncNavigationModal();
+    const navigation = active && navigationOverlay();
+    if (navigation) {
+      if (!navigation.contains(event.target) && !nativeOverlayOpen()) {
+        navigation.querySelector("input")?.focus({ preventScroll: true });
+      }
+      return;
+    }
+    if (active?.side.contains(event.target)) active.popupFocus = event.target;
     if (!active) {
       if (!event.target.closest?.("right-panel > .side")) {
         lastOrigin = event.target.closest?.("task") || event.target;
@@ -253,7 +312,7 @@
     childList: true,
     subtree: true,
     attributes: true,
-    attributeFilter: ["class"],
+    attributeFilter: ["class", "style", "hidden", "role"],
   });
   document.addEventListener("keydown", onKey, true);
   document.addEventListener("focusin", onFocus, true);

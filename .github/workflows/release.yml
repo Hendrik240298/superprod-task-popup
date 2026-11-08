@@ -22,7 +22,7 @@ jobs:
           deno-version: v2.x
       - name: Check formatting and JavaScript
         run: |
-          deno fmt --check src/ tests/lifecycle.mjs
+          deno fmt --check src/ tests/*.mjs
           deno check src/plugin.js
       - name: Test packaging
         run: python3 -m unittest discover -s tests -p 'test_*.py' -v
